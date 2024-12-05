@@ -1,4 +1,4 @@
-import { add, format, sub } from "date-fns";
+import { add, format } from "date-fns";
 import { ptBR } from "date-fns/locale/pt-BR";
 
 import {
@@ -28,6 +28,8 @@ import { CabinClassType, GetFlightsParams } from "@/utils/types";
 import { useModalStore } from "@/stores/useAirportsModalStore";
 import AirportsModal from "./general/airportsModal";
 import rapidAPIService from "@/services/rapidAPI.service";
+import { useFlightsStore } from "@/stores/useFlightsStore";
+import { FlightsProps, FlightsResponseData } from "@/utils/flights_types";
 
 const flightsFormSchema = z.object({
   originSkyId: z.string(),
@@ -53,9 +55,12 @@ export default function FlightsForm() {
   });
 
   const { data, setData } = useFlightsFormStore();
+  const { setFlights, setHasSearched, isFetching, setIsFetching } =
+    useFlightsStore();
   const { setIsOpen, setIsFrom } = useModalStore();
 
   async function handleSubmit(formData: FlightsFormData) {
+    setIsFetching(true);
     const submittingData: GetFlightsParams = {
       ...formData,
       adults: 1,
@@ -71,11 +76,14 @@ export default function FlightsForm() {
     try {
       const response = await rapidAPIService.getFlights(submittingData);
       if (response.status === 200) {
-        const responseData = await response.json();
-        console.info({ responseData });
+        const responseData = (await response.json()) as FlightsResponseData;
+        setFlights(responseData.data.itineraries as FlightsProps[]);
+        setHasSearched(true);
       }
     } catch (error) {
       console.error({ error });
+    } finally {
+      setIsFetching(false);
     }
   }
 
@@ -239,7 +247,7 @@ export default function FlightsForm() {
                       <Calendar
                         mode="single"
                         selected={field.value}
-                        onSelect={(date: any) => {
+                        onSelect={(date) => {
                           field.onChange(date);
                           setData({ ...data, goingDate: date });
                         }}
@@ -295,7 +303,7 @@ export default function FlightsForm() {
                         <Calendar
                           mode="single"
                           selected={field.value}
-                          onSelect={(date: any) => {
+                          onSelect={(date) => {
                             field.onChange(date);
                             setData({ ...data, returningDate: date });
                           }}
@@ -321,6 +329,7 @@ export default function FlightsForm() {
           </div>
           <div className="w-full flex items-center justify-center">
             <Button
+              disabled={isFetching}
               type="submit"
               className="text-zinc-600 bg-zinc-800 rounded-3xl px-4 py-2 hover:bg-zinc-700 transition-all duration-200 cursor-pointer hover:text-zinc-300"
             >

@@ -28,7 +28,6 @@ class RapidAPIService {
       .filter((key) => params[key as keyof typeof params])
       .map((key) => `${key}=${params[key as keyof typeof params]}`)
       .join("&");
-    console.info({ queryParams });
 
     const response = await fetch(
       `${this.baseUrl}/flights/searchFlights?${queryParams}&currency=BRL`,
