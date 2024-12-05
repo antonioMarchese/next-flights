@@ -1,7 +1,6 @@
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
-import { useFormField } from "./form";
 import { IconType } from "@/utils/types";
 
 export interface InputProps
@@ -11,7 +10,6 @@ export interface InputProps
 
 const FormInput = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, type, icon: Icon, ...props }, ref) => {
-    const { error } = useFormField();
     return (
       <div className="relative w-full">
         {Icon && (

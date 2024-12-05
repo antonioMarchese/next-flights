@@ -11,6 +11,7 @@ import rapidAPIService from "@/services/rapidAPI.service";
 import { useState } from "react";
 import { AirportsProps } from "@/utils/types";
 import { useFlightsFormStore } from "@/stores/useFlightsFormStore";
+import { useFlightsStore } from "@/stores/useFlightsStore";
 
 const airportsFormSchema = z.object({
   airport: z.string(),
@@ -44,13 +45,16 @@ export default function AirportsModal({ flightsForm }: AiportsModalProps) {
   const { isOpen, setIsOpen, isFrom } = useModalStore();
   const { data: flightsFormData, setData: setFlightsFormData } =
     useFlightsFormStore();
+  const { setIsFetching, isFetching } = useFlightsStore();
 
   const [airports, setAirports] = useState<Array<AirportsProps>>([]);
+  const [isFetchingAirports, setIsFetchingAirports] = useState(false);
 
   async function handleSubmit({ airport }: AirportsFormData) {
     if (!airport.trim()) {
       return setAirports([]);
     }
+    setIsFetching(true);
     try {
       const response = await rapidAPIService.getAirports(airport);
       if (response.status === 200) {
@@ -58,7 +62,9 @@ export default function AirportsModal({ flightsForm }: AiportsModalProps) {
         setAirports(data.data as AirportsProps[]);
       }
     } catch (error) {
-      console.error("Erro ao buscar aeroportos");
+      console.error("Erro ao buscar aeroportos", error);
+    } finally {
+      setIsFetching(false);
     }
   }
 
@@ -103,7 +109,10 @@ export default function AirportsModal({ flightsForm }: AiportsModalProps) {
                 </FormItem>
               )}
             />
-            <Button className="m-0 h-10 lg:h-12 text-zinc-400 bg-zinc-600 hover:bg-zinc-500 hover:text-zinc-700 rounded-lg">
+            <Button
+              disabled={isFetchingAirports}
+              className="m-0 h-10 lg:h-12 text-zinc-400 bg-zinc-600 hover:bg-zinc-500 hover:text-zinc-700 rounded-lg"
+            >
               <MagnifyingGlassIcon className="size-6" />
             </Button>
           </form>

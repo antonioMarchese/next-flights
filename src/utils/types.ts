@@ -57,5 +57,5 @@ export type GetFlightsParams = {
   cabinClass: string;
   adults: number;
   date: string;
-  returnDate: string;
+  returnDate?: string;
 };
