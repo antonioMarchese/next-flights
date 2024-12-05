@@ -48,7 +48,6 @@ export default function AirportsModal({ flightsForm }: AiportsModalProps) {
   const { setIsFetching, isFetching } = useFlightsStore();
 
   const [airports, setAirports] = useState<Array<AirportsProps>>([]);
-  const [isFetchingAirports, setIsFetchingAirports] = useState(false);
 
   async function handleSubmit({ airport }: AirportsFormData) {
     if (!airport.trim()) {
@@ -110,7 +109,7 @@ export default function AirportsModal({ flightsForm }: AiportsModalProps) {
               )}
             />
             <Button
-              disabled={isFetchingAirports}
+              disabled={isFetching}
               className="m-0 h-10 lg:h-12 text-zinc-400 bg-zinc-600 hover:bg-zinc-500 hover:text-zinc-700 rounded-lg"
             >
               <MagnifyingGlassIcon className="size-6" />
